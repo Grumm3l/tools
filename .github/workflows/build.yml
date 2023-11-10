@@ -2,6 +2,11 @@ name: Build gopls-deps
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version'
+        required: true
+        default: '0.14.1'
 
 jobs:
   build:
@@ -18,11 +23,10 @@ jobs:
       run: |
         cd gopls
         GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
-        echo "VERSION=0.14.1" >> $GITHUB_ENV
-        XZ_OPT='-T0 -9' tar -acf "gopls-${{ env.VERSION }}-deps.tar.xz" go-mod
+        XZ_OPT='-T0 -9' tar -acf "gopls-${{ github.event.inputs.version }}"-deps.tar.xz" go-mod
     - name: Create GitHub Release
       run: |
         cd gopls
-        gh release create "${{ env.VERSION }}" "gopls-${{ env.VERSION }}-deps.tar.xz" -t "Release ${{ env.VERSION }}" -n "gopls ${{ env.VERSION }} dependencies"
+        gh release create "${{ github.event.inputs.version }}" "gopls-${{ github.event.inputs.version }}-deps.tar.xz" -t "Release ${{ github.event.inputs.version }}" -n "gopls ${{ github.event.inputs.version }} dependencies"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
