@@ -23,7 +23,7 @@ jobs:
       run: |
         cd gopls
         GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
-        XZ_OPT='-T0 -9' tar -acf "gopls-${{ github.event.inputs.version }}"-deps.tar.xz" go-mod
+        XZ_OPT='-T0 -9' tar -acf "gopls-${{ github.event.inputs.version }}-deps.tar.xz" go-mod
     - name: Create GitHub Release
       run: |
         cd gopls
