@@ -1,0 +1,29 @@
+name: Build gopls-deps
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4.1.1
+
+    - name: Setup Go
+      uses: actions/setup-go@v4.1.0
+
+    - name: Build and package dependencies
+      run: |
+        cd gopls
+        GOMODCACHE="${PWD}"/go-mod go mod download -modcacherw
+        echo "${{ github.ref_name }}"
+        echo "VERSION=$(echo "${{ github.ref_name }}" | sed 's/gopls\/v//')" >> $GITHUB_ENV
+        XZ_OPT='-T0 -9' tar -acf "gopls-${{ env.VERSION }}-deps.tar.xz" go-mod
+    - name: Create GitHub Release
+      run: |
+        cd gopls
+        gh release create "${{ env.VERSION }}" "gopls-${{ env.VERSION }}-deps.tar.xz" -t "Release ${{ env.VERSION }}" -n "gopls ${{ env.VERSION }} dependencies"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
